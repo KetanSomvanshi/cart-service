@@ -1,10 +1,12 @@
 from datetime import datetime
 from urllib.parse import quote_plus
 
+import uuid as uuid
 from pytz import timezone
-from sqlalchemy import Column, TIMESTAMP, Boolean, Integer, create_engine, String
+from sqlalchemy import Column, TIMESTAMP, Boolean, Integer, create_engine
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Session, scoped_session
+from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
 
 from config.settings import DB
@@ -44,7 +46,19 @@ def get_db():
 class DBBase:
     """Base class for all db orm models"""
     id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
-    external_id = Column(String(255), unique=True)
+    uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
     created_at = Column(TIMESTAMP(timezone=True), default=time_now, nullable=False)
     updated_at = Column(TIMESTAMP(timezone=True), default=time_now, onupdate=time_now, nullable=False)
     is_deleted = Column(Boolean, default=False)
+
+    @classmethod
+    def get_by_uuid(cls, uuid):
+        from controller.context_manager import get_db_session
+        db: Session = get_db_session()
+        return db.query(cls).filter(cls.uuid == uuid, cls.is_deleted.is_(False)).first()
+
+    @classmethod
+    def get_by_id(cls, id):
+        from controller.context_manager import get_db_session
+        db: Session = get_db_session()
+        return db.query(cls).filter(cls.id == id, cls.is_deleted.is_(False)).first()
