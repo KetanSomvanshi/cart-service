@@ -37,10 +37,10 @@ async def sql_data_exception_handler(request, exc):
 
 
 @app.exception_handler(AppException)
-def application_exception_handler(request, exc):
+async def application_exception_handler(request, exc):
     logger.error(extra=context_log_meta.get(),
                  msg=f"application exception occurred error: {json.loads(str(exc))}")
-    return build_api_response(GenericResponseModel(status_code=http.HTTPStatus.INTERNAL_SERVER_ERROR,
+    return build_api_response(GenericResponseModel(status_code=exec.status_code,
                                                    api_id=context_api_id.get(), error=exc.message))
 
 

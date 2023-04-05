@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 import uvicorn
-from controller import status, user_controller
-from fastapi import FastAPI
+from controller import status, user_controller, customer_controller
+from fastapi import FastAPI, Depends
 
 from logger import logger
+from models.user import UserRole
+from server.auth import authenticate_token
 
 app = FastAPI()
 app.include_router(status.router)
 app.include_router(user_controller.user_router)
+#  token based authentication apis should have dependency on authenticate_token
+app.include_router(customer_controller.customer_router, dependencies=[Depends(authenticate_token)])
 
 
 @app.on_event("startup")

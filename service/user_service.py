@@ -53,19 +53,3 @@ class UserService:
         logger.error(extra=context_log_meta.get(), msg=f"Invalid credentials for user {user.email}")
         return GenericResponseModel(status_code=http.HTTPStatus.UNAUTHORIZED,
                                     error=UserService.ERROR_INVALID_CREDENTIALS)
-
-    @staticmethod
-    def suspend_user(user_uuid: str) -> GenericResponseModel:
-        """
-        Delete user
-        :param user_uuid: user uuid to suspend
-        :return: GenericResponseModel
-        """
-        # only customer role user can be suspended
-        updates = User.update_user_by_uuid(user_uuid=user_uuid, user_role=UserRole.CUSTOMER,
-                                           update_dict={User.status: UserStatus.SUSPENDED})
-        if not updates:
-            logger.error(extra=context_log_meta.get(), msg=f"User with uuid {user_uuid} not found")
-            return GenericResponseModel(status_code=http.HTTPStatus.NOT_FOUND, error=UserService.ERROR_USER_NOT_FOUND)
-        logger.info(extra=context_log_meta.get(), msg=f"User with uuid {user_uuid} suspended successfully")
-        return GenericResponseModel(status_code=http.HTTPStatus.OK, message=UserService.MSG_USER_SUSPENDED)

@@ -13,3 +13,7 @@ class AppException(Exception):
                         "exception_msg": self.message,
                         "exception_status_code": self.status_code})
         )
+
+
+class AuthException(AppException):
+    pass
