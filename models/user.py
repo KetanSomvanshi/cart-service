@@ -8,7 +8,7 @@ from models.base import DBBaseModel
 class UserRole(str, Enum):
     """Enum for user roles"""
     ADMIN = "admin"
-    USER = "user"
+    CUSTOMER = "customer"
 
 
 class UserStatus(str, Enum):
@@ -22,8 +22,8 @@ class UserBaseModel(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
-    role: UserRole
-    status: UserStatus
+    role: UserRole = UserRole.CUSTOMER
+    status: UserStatus = UserStatus.ACTIVE
 
 
 class UserInsertModel(UserBaseModel):
@@ -49,6 +49,16 @@ class UserInsertModel(UserBaseModel):
         if not any(char in special_chars for char in password):
             raise ValueError('password must contain at least one special character')
         return password
+
+    def create_db_entity(self, password_hash: str):
+        """
+        Creates a db entity from the insert model
+        """
+        from data_adapter.user import User
+        dict_to_build_db_entity = self.dict()
+        dict_to_build_db_entity['password_hash'] = password_hash
+        dict_to_build_db_entity.pop('password')
+        return User(**dict_to_build_db_entity)
 
 
 class UserModel(UserBaseModel, DBBaseModel):

@@ -43,7 +43,7 @@ def get_db():
         db.close()
 
 
-class DBBase:
+class CartDBBase:
     """Base class for all db orm models"""
     id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
     uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)

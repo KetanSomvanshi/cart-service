@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 import uvicorn
-from controller import status
+from controller import status, user_controller
 from fastapi import FastAPI
 
 from logger import logger
 
 app = FastAPI()
 app.include_router(status.router)
+app.include_router(user_controller.user_router)
 
 
 @app.on_event("startup")
