@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String
 from sqlalchemy.orm import Session
 from data_adapter.db import CartDBBase, DBBase
-from models.user import UserModel, UserStatus
+from models.user import UserModel, UserStatus, UserRole
 
 
 class User(DBBase, CartDBBase):
@@ -44,9 +44,12 @@ class User(DBBase, CartDBBase):
         return user.__to_model() if user else None
 
     @classmethod
-    def update_user_by_uuid(cls, user_uuid: str, update_dict: dict) -> int:
+    def update_user_by_uuid(cls, user_uuid: str, update_dict: dict, user_role: UserRole = None) -> int:
         from controller.context_manager import get_db_session
         db = get_db_session()
-        updates = db.query(cls).filter(cls.uuid == user_uuid).update(update_dict)
+        update_query = db.query(cls).filter(cls.uuid == user_uuid, cls.is_deleted.is_(False))
+        if user_role:
+            update_query = update_query.filter(cls.role == user_role)
+        updates = update_query.update(update_dict)
         db.flush()
         return updates

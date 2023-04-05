@@ -4,7 +4,7 @@ from controller.context_manager import context_log_meta
 from data_adapter.user import User
 from logger import logger
 from models.base import GenericResponseModel
-from models.user import UserInsertModel, UserLoginModel, UserModel, UserTokenResponseModel, UserStatus
+from models.user import UserInsertModel, UserLoginModel, UserModel, UserTokenResponseModel, UserStatus, UserRole
 from utils.jwt_token_handler import JWTHandler
 from utils.password_hasher import PasswordHasher
 
@@ -61,7 +61,9 @@ class UserService:
         :param user_uuid: user uuid to suspend
         :return: GenericResponseModel
         """
-        updates = User.update_user_by_uuid(user_uuid=user_uuid, update_dict={User.status: UserStatus.SUSPENDED})
+        # only customer role user can be suspended
+        updates = User.update_user_by_uuid(user_uuid=user_uuid, user_role=UserRole.CUSTOMER,
+                                           update_dict={User.status: UserStatus.SUSPENDED})
         if not updates:
             logger.error(extra=context_log_meta.get(), msg=f"User with uuid {user_uuid} not found")
             return GenericResponseModel(status_code=http.HTTPStatus.NOT_FOUND, error=UserService.ERROR_USER_NOT_FOUND)
