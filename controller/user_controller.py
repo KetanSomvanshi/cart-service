@@ -1,6 +1,6 @@
 import http
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Path
 
 from controller.context_manager import build_request_context
 from models.base import GenericResponseModel
@@ -32,4 +32,16 @@ async def login_user(user_login_request: UserLoginModel, _=Depends(build_request
     :return: GenericResponseModel
     """
     response: GenericResponseModel = UserService.login_user(user_login_request=user_login_request)
+    return build_api_response(response)
+
+
+@user_router.delete("/{user_uuid}/suspend", status_code=http.HTTPStatus.OK, response_model=GenericResponseModel)
+async def suspend_user(user_uuid: str = Path(..., description="User uuid to suspend"), _=Depends(build_request_context)):
+    """
+    Delete user
+    :param _: build_request_context dependency injection handles the request context
+    :param user_uuid: user uuid to suspend
+    :return: GenericResponseModel
+    """
+    response: GenericResponseModel = UserService.suspend_user(user_uuid=user_uuid)
     return build_api_response(response)

@@ -4,7 +4,7 @@ from controller.context_manager import context_log_meta
 from data_adapter.user import User
 from logger import logger
 from models.base import GenericResponseModel
-from models.user import UserInsertModel, UserLoginModel, UserModel, UserTokenResponseModel
+from models.user import UserInsertModel, UserLoginModel, UserModel, UserTokenResponseModel, UserStatus
 from utils.jwt_token_handler import JWTHandler
 from utils.password_hasher import PasswordHasher
 
@@ -12,8 +12,10 @@ from utils.password_hasher import PasswordHasher
 class UserService:
     MSG_USER_CREATED_SUCCESS = "User created successfully"
     MSG_USER_LOGIN_SUCCESS = "Login successful"
+    MSG_USER_SUSPENDED = "User is suspended successfully"
 
     ERROR_INVALID_CREDENTIALS = "Invalid credentials"
+    ERROR_USER_NOT_FOUND = "User not found"
 
     @staticmethod
     def signup_user(user: UserInsertModel) -> GenericResponseModel:
@@ -40,7 +42,7 @@ class UserService:
         if not user:
             logger.error(extra=context_log_meta.get(), msg=f"user not found for email {user_login_request.email}")
             return GenericResponseModel(status_code=http.HTTPStatus.UNAUTHORIZED,
-                                        error=UserService.ERROR_INVALID_CREDENTIALS)
+                                        error=UserService.ERROR_USER_NOT_FOUND)
         if PasswordHasher.verify_password(user_login_request.password, user.password_hash):
             token = JWTHandler.create_access_token(user.build_user_token_data())
             logger.info(extra=context_log_meta.get(), msg=f"Login successful for user {user.email}"
@@ -51,3 +53,17 @@ class UserService:
         logger.error(extra=context_log_meta.get(), msg=f"Invalid credentials for user {user.email}")
         return GenericResponseModel(status_code=http.HTTPStatus.UNAUTHORIZED,
                                     error=UserService.ERROR_INVALID_CREDENTIALS)
+
+    @staticmethod
+    def suspend_user(user_uuid: str) -> GenericResponseModel:
+        """
+        Delete user
+        :param user_uuid: user uuid to suspend
+        :return: GenericResponseModel
+        """
+        updates = User.update_user_by_uuid(user_uuid=user_uuid, update_dict={User.status: UserStatus.SUSPENDED})
+        if not updates:
+            logger.error(extra=context_log_meta.get(), msg=f"User with uuid {user_uuid} not found")
+            return GenericResponseModel(status_code=http.HTTPStatus.NOT_FOUND, error=UserService.ERROR_USER_NOT_FOUND)
+        logger.info(extra=context_log_meta.get(), msg=f"User with uuid {user_uuid} suspended successfully")
+        return GenericResponseModel(status_code=http.HTTPStatus.OK, message=UserService.MSG_USER_SUSPENDED)

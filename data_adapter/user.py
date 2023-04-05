@@ -26,19 +26,27 @@ class User(DBBase, CartDBBase):
         db.flush()
 
     @classmethod
-    def get_by_id(cls, id):
+    def get_by_id(cls, id) -> UserModel:
         user = super().get_by_id(id)
         return user.__to_model() if user else None
 
     @classmethod
-    def get_by_uuid(cls, uuid):
+    def get_by_uuid(cls, uuid) -> UserModel:
         user = super().get_by_uuid(uuid)
         return user.__to_model() if user else None
 
     @classmethod
-    def get_active_user_by_email(cls, email):
+    def get_active_user_by_email(cls, email) -> UserModel:
         from controller.context_manager import get_db_session
         db = get_db_session()
         user = db.query(cls).filter(cls.email == email, cls.status == UserStatus.ACTIVE,
                                     cls.is_deleted.is_(False)).first()
         return user.__to_model() if user else None
+
+    @classmethod
+    def update_user_by_uuid(cls, user_uuid: str, update_dict: dict) -> int:
+        from controller.context_manager import get_db_session
+        db = get_db_session()
+        updates = db.query(cls).filter(cls.uuid == user_uuid).update(update_dict)
+        db.flush()
+        return updates
