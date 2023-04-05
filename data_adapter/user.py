@@ -1,8 +1,7 @@
 from sqlalchemy import Column, String
 from sqlalchemy.orm import Session
-
 from data_adapter.db import CartDBBase, DBBase
-from models.user import UserModel
+from models.user import UserModel, UserStatus
 
 
 class User(DBBase, CartDBBase):
@@ -34,4 +33,12 @@ class User(DBBase, CartDBBase):
     @classmethod
     def get_by_uuid(cls, uuid):
         user = super().get_by_uuid(uuid)
+        return user.__to_model() if user else None
+
+    @classmethod
+    def get_active_user_by_email(cls, email):
+        from controller.context_manager import get_db_session
+        db = get_db_session()
+        user = db.query(cls).filter(cls.email == email, cls.status == UserStatus.ACTIVE,
+                                    cls.is_deleted.is_(False)).first()
         return user.__to_model() if user else None

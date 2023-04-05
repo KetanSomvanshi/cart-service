@@ -14,3 +14,9 @@ class DB:
     name = Environment.get_string("DB_NAME", "cartdb")
     user = Environment.get_string("DB_USER", "ketansomvanshi")
     pass_ = Environment.get_string("DB_PASS", "zxcvbnml")
+
+
+class JWTToken:
+    algorithm = Environment.get_string("JWT_ALGORITHM", "HS256")
+    secret = Environment.get_string("JWT_SECRET", "secret")
+    access_token_expire_minutes = Environment.get_string("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "30")

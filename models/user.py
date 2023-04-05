@@ -1,4 +1,6 @@
 from enum import Enum
+from typing import Optional
+from uuid import UUID
 
 from pydantic import BaseModel, validator, EmailStr
 
@@ -15,6 +17,13 @@ class UserStatus(str, Enum):
     """Enum for user status"""
     ACTIVE = "active"
     SUSPENDED = "suspended"
+
+
+class UserTokenData(BaseModel):
+    """User token data"""
+    uuid: str
+    role: UserRole
+    email: EmailStr
 
 
 class UserBaseModel(BaseModel):
@@ -67,3 +76,28 @@ class UserModel(UserBaseModel, DBBaseModel):
 
     class Config:
         orm_mode = True
+
+    def build_user_token_data(self) -> dict:
+        """
+        Builds the user token data
+        :return: dict
+        """
+        res_dict = self.dict()
+        res_dict['uuid'] = str(self.uuid)
+        return UserTokenData.parse_obj(res_dict).dict()
+
+
+class UserLoginModel(BaseModel):
+    """User logincart model"""
+    email: EmailStr
+    password: str
+
+
+class TokenType(str, Enum):
+    bearer = "bearer"
+
+
+class UserTokenResponseModel(BaseModel):
+    """User token model"""
+    access_token: str
+    token_type: TokenType = TokenType.bearer
