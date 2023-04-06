@@ -50,12 +50,6 @@ class ItemResponseModel(ItemInsertModel):
     uuid: UUID
 
 
-class ItemCartResponseModel(ItemBaseModel):
-    """Item model for to list item in cart"""
-    uuid: UUID
-    quantity: int
-
-
 class ItemModel(ItemInsertModel, DBBaseModel):
     """Base DB model for item"""
     pass

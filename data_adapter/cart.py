@@ -55,10 +55,10 @@ class CartItem(DBBase, CartDBBase):
 
     item_id = Column(INTEGER, ForeignKey(Item.id), nullable=False)
     cart_id = Column(INTEGER, ForeignKey(CustomerCart.id), nullable=False)
-    quantity = Column(INTEGER, nullable=False)
+    quantity_in_cart = Column(INTEGER, nullable=False)
 
     cart = relationship(CustomerCart, back_populates='cart_items')
-    item = relationship('Item')
+    original_item = relationship('Item')
 
     def __to_model(self) -> CartItemModel:
         """converts db orm object to pydantic model"""
