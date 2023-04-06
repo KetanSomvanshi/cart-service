@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import Optional
+from uuid import UUID
 
 from pydantic import BaseModel
 
@@ -21,6 +22,11 @@ class ItemInsertModel(BaseModel):
     price: float
     description: Optional[str] = None
     quantity: int = 1
+    image: Optional[str] = None
+
+
+class ItemResponseModel(ItemInsertModel):
+    uuid: UUID
 
 
 class ItemModel(ItemInsertModel, DBBaseModel):

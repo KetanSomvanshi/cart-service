@@ -1,4 +1,5 @@
 from sqlalchemy import Column, String
+
 from sqlalchemy.orm import Session
 from data_adapter.db import CartDBBase, DBBase
 from models.user import UserModel, UserStatus, UserRole
