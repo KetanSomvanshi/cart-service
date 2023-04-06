@@ -14,6 +14,7 @@ from utils.jwt_token_handler import JWTHandler
 class RBACResource(str, Enum):
     customer = "customer"
     inventory = "inventory"
+    cart = "cart"
 
 
 class RBACAccessType(str, Enum):
@@ -26,11 +27,19 @@ class RBACAccessType(str, Enum):
 
 # resource to role mapping for RBAC
 RBAC_MAPPER = {
+    # admin can suspend customer
     RBACResource.customer: {RBACAccessType.delete: [UserRole.ADMIN]},
+    # admin can add,update,read,delete items to inventory
+    # customer can only read items from inventory
     RBACResource.inventory: {RBACAccessType.read: [UserRole.CUSTOMER, UserRole.ADMIN],
                              RBACAccessType.write: [UserRole.ADMIN],
                              RBACAccessType.update: [UserRole.ADMIN],
-                             RBACAccessType.delete: [UserRole.ADMIN]}
+                             RBACAccessType.delete: [UserRole.ADMIN]},
+    #  admin cannot do anything with customer cart , customer can do everything with cart
+    RBACResource.cart: {RBACAccessType.read: [UserRole.CUSTOMER],
+                        RBACAccessType.write: [UserRole.CUSTOMER],
+                        RBACAccessType.update: [UserRole.CUSTOMER],
+                        RBACAccessType.delete: [UserRole.CUSTOMER]}
 }
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")

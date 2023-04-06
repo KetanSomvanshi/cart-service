@@ -26,10 +26,11 @@ class UserService:
         """
         hashed_password = PasswordHasher.get_password_hash(user.password)
         user_to_create = user.create_db_entity(password_hash=hashed_password)
-        User.create_user(user_to_create)
+        user_data = User.create_user(user_to_create)
         logger.info(extra=context_log_meta.get(),
                     msg="User created successfully with uuid {}".format(user_to_create.uuid))
-        return GenericResponseModel(status_code=http.HTTPStatus.CREATED, message=UserService.MSG_USER_CREATED_SUCCESS)
+        return GenericResponseModel(status_code=http.HTTPStatus.CREATED, message=UserService.MSG_USER_CREATED_SUCCESS,
+                                    data=user_data.build_response_model())
 
     @staticmethod
     def login_user(user_login_request: UserLoginModel) -> GenericResponseModel:

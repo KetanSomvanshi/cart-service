@@ -1,14 +1,12 @@
 import http
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 
 from controller.context_manager import build_request_context
 from models.base import GenericResponseModel
 from models.inventory import ItemInsertModel
-from models.user import UserInsertModel, UserLoginModel
 from server.auth import rbac_access_checker, RBACResource, RBACAccessType
 from service.inventory_service import InventoryService
-from service.user_service import UserService
 from utils.helper import build_api_response
 
 inventory_router = APIRouter(prefix="/v1/inventory/items", tags=["inventory", "items"])

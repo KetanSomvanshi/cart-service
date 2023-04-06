@@ -26,12 +26,16 @@ class UserTokenData(BaseModel):
     email: EmailStr
 
 
-class UserBaseModel(BaseModel):
-    """User model for insert"""
+class UserResponseModel(BaseModel):
+    """User model for response"""
     first_name: str
     last_name: str
     email: EmailStr
     role: UserRole = UserRole.CUSTOMER
+
+
+class UserBaseModel(UserResponseModel):
+    """User model for insert"""
     status: UserStatus = UserStatus.ACTIVE
 
 
@@ -85,6 +89,9 @@ class UserModel(UserBaseModel, DBBaseModel):
         res_dict = self.dict()
         res_dict['uuid'] = str(self.uuid)
         return UserTokenData.parse_obj(res_dict).dict()
+
+    def build_response_model(self) -> UserResponseModel:
+        return UserResponseModel.parse_obj(self.dict())
 
 
 class UserLoginModel(BaseModel):

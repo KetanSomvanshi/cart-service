@@ -16,12 +16,11 @@ class ItemCategory(str, Enum):
     GROCERIES = 'groceries'
 
 
-class ItemInsertModel(BaseModel):
+class ItemBaseModel(BaseModel):
     category: ItemCategory
     name: str
     price: float
     description: Optional[str] = None
-    quantity: int = 1
     image: Optional[HttpUrl] = None
 
     @validator('price')
@@ -29,6 +28,11 @@ class ItemInsertModel(BaseModel):
         if v <= 0:
             raise ValueError('Price must be positive')
         return v
+
+
+class ItemInsertModel(ItemBaseModel):
+    """Item model for insert"""
+    quantity: int = 1
 
     @validator('quantity')
     def quantity_must_be_positive(cls, v):
@@ -42,10 +46,17 @@ class ItemInsertModel(BaseModel):
 
 
 class ItemResponseModel(ItemInsertModel):
+    """Item response model"""
     uuid: UUID
 
 
+class ItemCartResponseModel(ItemBaseModel):
+    """Item model for to list item in cart"""
+    uuid = UUID
+
+
 class ItemModel(ItemInsertModel, DBBaseModel):
+    """Base DB model for item"""
     pass
 
     class Config:
@@ -53,3 +64,6 @@ class ItemModel(ItemInsertModel, DBBaseModel):
 
     def build_response_model(self) -> ItemResponseModel:
         return ItemResponseModel(**self.dict())
+
+    def build_item_cart_response_model(self) -> ItemCartResponseModel:
+        return ItemCartResponseModel(**self.dict())

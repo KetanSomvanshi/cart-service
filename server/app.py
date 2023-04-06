@@ -7,7 +7,7 @@ from fastapi import FastAPI, Depends, Request
 from pydantic import ValidationError
 from sqlalchemy.exc import ProgrammingError, DataError, IntegrityError
 
-from controller import status, user_controller, customer_controller, inventory_controller
+from controller import status, user_controller, customer_controller, inventory_controller, cart_controller
 from controller.context_manager import context_log_meta
 from logger import logger
 from models.base import GenericResponseModel
@@ -24,6 +24,7 @@ app.include_router(user_controller.user_router)
 #  token based authentication apis should have dependency on authenticate_token
 app.include_router(customer_controller.customer_router, dependencies=[Depends(authenticate_token)])
 app.include_router(inventory_controller.inventory_router, dependencies=[Depends(authenticate_token)])
+app.include_router(cart_controller.cart_router, dependencies=[Depends(authenticate_token)])
 
 
 #  register exception handlers here

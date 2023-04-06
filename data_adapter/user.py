@@ -20,11 +20,12 @@ class User(DBBase, CartDBBase):
         return UserModel.from_orm(self)
 
     @classmethod
-    def create_user(cls, user):
+    def create_user(cls, user) -> UserModel:
         from controller.context_manager import get_db_session
         db: Session = get_db_session()
         db.add(user)
         db.flush()
+        return user.__to_model()
 
     @classmethod
     def get_by_id(cls, id) -> UserModel:
