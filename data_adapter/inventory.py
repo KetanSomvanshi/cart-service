@@ -22,11 +22,12 @@ class Item(DBBase, CartDBBase):
         return ItemModel.from_orm(self)
 
     @classmethod
-    def create_item(cls, item):
+    def create_item(cls, item) -> ItemModel:
         from controller.context_manager import get_db_session
         db: Session = get_db_session()
         db.add(item)
         db.flush()
+        return item.__to_model()
 
     @classmethod
     def get_by_id(cls, id) -> ItemModel:

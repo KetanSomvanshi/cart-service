@@ -35,4 +35,5 @@ async def add_item_to_inventory(item: ItemInsertModel, _=Depends(build_request_c
     :param item: item details to add
     :return:
     """
-    pass
+    response = InventoryService.add_item_to_inventory(item=item)
+    return build_api_response(response)

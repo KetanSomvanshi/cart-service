@@ -17,7 +17,7 @@ class ItemCategory(str, Enum):
 
 
 class ItemInsertModel(BaseModel):
-    category = ItemCategory
+    category: ItemCategory
     name: str
     price: float
     description: Optional[str] = None
@@ -35,6 +35,10 @@ class ItemInsertModel(BaseModel):
         if v < 1:
             raise ValueError('Quantity must be at least 1')
         return v
+
+    def build_db_model(self):
+        from data_adapter.inventory import Item
+        return Item(**self.dict())
 
 
 class ItemResponseModel(ItemInsertModel):
