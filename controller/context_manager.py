@@ -11,7 +11,7 @@ from models.user import UserTokenData
 # we are using context variables to store request level context , as FASTAPI
 # does not provide request context out of the box
 context_db_session: ContextVar[Session] = ContextVar('db_session', default=None)
-context_api_id: ContextVar[str] = ContextVar('api_id')
+context_api_id: ContextVar[str] = ContextVar('api_id', default=None)
 context_log_meta: ContextVar[dict] = ContextVar('log_meta', default={})
 context_user_id: ContextVar[str] = ContextVar('user_id', default=None)
 context_actor_user_data: ContextVar[UserTokenData] = ContextVar('actor_user_data', default=None)

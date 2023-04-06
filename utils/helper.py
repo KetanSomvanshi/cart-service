@@ -1,4 +1,5 @@
 import http
+import uuid
 
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
@@ -11,7 +12,7 @@ from models.base import GenericResponseModel
 def build_api_response(generic_response: GenericResponseModel) -> JSONResponse:
     try:
         if not generic_response.api_id:
-            generic_response.api_id = context_api_id.get()
+            generic_response.api_id = context_api_id.get() if context_api_id.get() else str(uuid.uuid4())
         if not generic_response.status_code:
             generic_response.status_code = http.HTTPStatus.OK if not generic_response.error \
                 else http.HTTPStatus.UNPROCESSABLE_ENTITY
