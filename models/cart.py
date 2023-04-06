@@ -8,7 +8,7 @@ from models.inventory import ItemModel, ItemResponseModel
 from models.user import UserModel, UserResponseModel
 
 
-class AddItemToCart(BaseModel):
+class CartItemQuantity(BaseModel):
     """Add item to cart model"""
     quantity: int = 0
 
