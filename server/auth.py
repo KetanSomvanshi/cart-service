@@ -22,7 +22,6 @@ class RBACAccessType(str, Enum):
     write = "write"
     delete = "delete"
     update = "update"
-    create = "create"
 
 
 # resource to role mapping for RBAC

@@ -1,9 +1,12 @@
 import http
+from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from fastapi.params import Path
 
 from controller.context_manager import build_request_context
 from models.base import GenericResponseModel
+from models.cart import AddItemToCart
 from server.auth import rbac_access_checker, RBACResource, RBACAccessType
 from service.cart_service import CartService
 from utils.helper import build_api_response
@@ -20,4 +23,20 @@ async def get_cart_items(_=Depends(build_request_context)):
     :return: GenericResponseModel
     """
     response: GenericResponseModel = CartService.get_cart_for_customer()
+    return build_api_response(response)
+
+
+@cart_router.post("/item/{item_uuid}", status_code=http.HTTPStatus.CREATED, response_model=GenericResponseModel)
+@rbac_access_checker(resource=RBACResource.cart, rbac_access_type=RBACAccessType.write)
+async def add_item_to_cart(item_uuid: UUID = Path(..., description="Item uuid to add to cart"),
+                           add_item_request: AddItemToCart = Depends(), _=Depends(build_request_context)):
+    """
+    Add item to cart
+    :param add_item_request:  AddItemToCart
+    :param item_uuid:  item uuid of item to add to cart
+    :param _: build_request_context dependency injection handles the request context
+    :return: GenericResponseModel
+    """
+    response: GenericResponseModel = CartService.add_item_to_cart(item_uuid=item_uuid,
+                                                                  add_item_request=add_item_request)
     return build_api_response(response)

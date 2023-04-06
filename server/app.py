@@ -32,7 +32,7 @@ app.include_router(cart_controller.cart_router, dependencies=[Depends(authentica
 async def pydantic_validation_exception_handler(request: Request, exc):
     logger.error(extra=context_log_meta.get(), msg=f"data validation failed {exc.errors()}")
     return build_api_response(GenericResponseModel(status_code=http.HTTPStatus.BAD_REQUEST,
-                                                   error=exc.errors()))
+                                                   error="Data Validation Failed"))
 
 
 @app.exception_handler(ProgrammingError)
