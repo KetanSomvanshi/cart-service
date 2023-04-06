@@ -23,6 +23,7 @@ app = FastAPI()
 
 #  register routers here and add dependency on authenticate_token if token based authentication is required
 app.include_router(status.router)
+# user creation and login apis should be open
 app.include_router(user_controller.user_router)
 #  token based authentication apis should have dependency on authenticate_token
 app.include_router(customer_controller.customer_router, dependencies=[Depends(authenticate_token)])
