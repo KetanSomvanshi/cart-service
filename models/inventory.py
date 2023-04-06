@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator, HttpUrl
 
 from models.base import DBBaseModel
 
@@ -22,7 +22,19 @@ class ItemInsertModel(BaseModel):
     price: float
     description: Optional[str] = None
     quantity: int = 1
-    image: Optional[str] = None
+    image: Optional[HttpUrl] = None
+
+    @validator('price')
+    def price_must_be_positive(cls, v):
+        if v <= 0:
+            raise ValueError('Price must be positive')
+        return v
+
+    @validator('quantity')
+    def quantity_must_be_positive(cls, v):
+        if v < 1:
+            raise ValueError('Quantity must be at least 1')
+        return v
 
 
 class ItemResponseModel(ItemInsertModel):
@@ -31,3 +43,9 @@ class ItemResponseModel(ItemInsertModel):
 
 class ItemModel(ItemInsertModel, DBBaseModel):
     pass
+
+    class Config:
+        orm_mode = True
+
+    def build_response_model(self) -> ItemResponseModel:
+        return ItemResponseModel(**self.dict())

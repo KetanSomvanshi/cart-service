@@ -12,9 +12,9 @@ class Item(DBBase, CartDBBase):
 
     category = Column(String(255), nullable=False)
     name = Column(String(255), nullable=False)
-    description = Column(String(1000), nullable=True)
+    description = Column(String(5000), nullable=True)
     price = Column(Float, nullable=False)
-    image = Column(String(255), nullable=True)
+    image = Column(String(1000), nullable=True)
     quantity = Column(INTEGER, nullable=False)
 
     def __to_model(self) -> ItemModel:

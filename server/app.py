@@ -1,23 +1,19 @@
 #!/usr/bin/env python3
-import uvicorn
-from controller import status, user_controller, customer_controller
-from fastapi import FastAPI, Depends
-
-from logger import logger
-from models.user import UserRole
-from server.auth import authenticate_token
 import http
 import json
 
+import uvicorn
+from fastapi import FastAPI, Depends, Request
 from pydantic import ValidationError
+from sqlalchemy.exc import ProgrammingError, DataError, IntegrityError
 
-from controller.context_manager import context_log_meta, context_api_id
+from controller import status, user_controller, customer_controller, inventory_controller
+from controller.context_manager import context_log_meta
 from logger import logger
 from models.base import GenericResponseModel
+from server.auth import authenticate_token
 from utils.exceptions import AppException
 from utils.helper import build_api_response
-from fastapi import FastAPI, Depends, Request
-from sqlalchemy.exc import ProgrammingError, DataError, IntegrityError
 
 app = FastAPI()
 
@@ -27,6 +23,7 @@ app.include_router(status.router)
 app.include_router(user_controller.user_router)
 #  token based authentication apis should have dependency on authenticate_token
 app.include_router(customer_controller.customer_router, dependencies=[Depends(authenticate_token)])
+app.include_router(inventory_controller.inventory_router, dependencies=[Depends(authenticate_token)])
 
 
 #  register exception handlers here
@@ -42,7 +39,7 @@ async def sql_exception_handler(request: Request, exc):
     logger.error(extra=context_log_meta.get(),
                  msg=f"sql exception occurred error: {str(exc.args)} statement : {exc.statement}")
     return build_api_response(GenericResponseModel(status_code=http.HTTPStatus.INTERNAL_SERVER_ERROR,
-                                                   error="Internal Server Error"))
+                                                   error="Data Source Error"))
 
 
 @app.exception_handler(DataError)

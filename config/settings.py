@@ -19,4 +19,4 @@ class DB:
 class JWTToken:
     algorithm = Environment.get_string("JWT_ALGORITHM", "HS256")
     secret = Environment.get_string("JWT_SECRET", "secret")
-    access_token_expire_minutes = Environment.get_string("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "30")
+    access_token_expire_minutes = Environment.get_string("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "86400")

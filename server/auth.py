@@ -27,7 +27,7 @@ class RBACAccessType(str, Enum):
 # resource to role mapping for RBAC
 RBAC_MAPPER = {
     RBACResource.customer: {RBACAccessType.delete: [UserRole.ADMIN]},
-    RBACResource.inventory: {RBACAccessType.read: [UserRole.CUSTOMER],
+    RBACResource.inventory: {RBACAccessType.read: [UserRole.CUSTOMER, UserRole.ADMIN],
                              RBACAccessType.write: [UserRole.ADMIN],
                              RBACAccessType.update: [UserRole.ADMIN],
                              RBACAccessType.delete: [UserRole.ADMIN]}
@@ -50,7 +50,8 @@ def rbac_access_checker(resource: RBACResource, rbac_access_type: RBACAccessType
             # Check if the user has access to the resource or not based on the role
             #  get user data from context
             if context_actor_user_data.get().role not in RBAC_MAPPER.get(resource).get(rbac_access_type, []):
-                raise AppException(status_code=403, message=f"You are not allowed to access resource {resource}")
+                raise AppException(status_code=403, message=f"You are not allowed to access resource {resource}"
+                                                            f" with operation {rbac_access_type}")
             return await func(*args, **kwargs)
 
         return wrapper

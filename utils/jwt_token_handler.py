@@ -5,7 +5,8 @@ from http.client import HTTPException
 import jwt
 
 from config.settings import JWTToken
-from controller.context_manager import context_actor_user_data
+from controller.context_manager import context_actor_user_data, context_log_meta
+from logger import logger
 from models.user import UserTokenData
 from utils.exceptions import AuthException
 
@@ -38,4 +39,5 @@ class JWTHandler:
             payload = jwt.decode(token, JWTToken.secret, algorithms=[JWTToken.algorithm])
             context_actor_user_data.set(UserTokenData(**payload))
         except Exception as e:
+            logger.error(extra=context_log_meta.get(), msg=f"Error while decoding access token: {e}")
             raise AuthException(status_code=401, message="Invalid authentication credentials")

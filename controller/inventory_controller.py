@@ -7,6 +7,7 @@ from models.base import GenericResponseModel
 from models.inventory import ItemInsertModel
 from models.user import UserInsertModel, UserLoginModel
 from server.auth import rbac_access_checker, RBACResource, RBACAccessType
+from service.inventory_service import InventoryService
 from service.user_service import UserService
 from utils.helper import build_api_response
 
@@ -21,7 +22,8 @@ async def get_items_from_inventory(_=Depends(build_request_context)):
     :param _: build_request_context dependency injection handles the request context
     :return: GenericResponseModel
     """
-    pass
+    response = InventoryService.get_all_items_in_inventory()
+    return build_api_response(response)
 
 
 @inventory_router.post("", status_code=http.HTTPStatus.CREATED, response_model=GenericResponseModel)
