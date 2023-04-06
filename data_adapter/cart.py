@@ -13,7 +13,6 @@ class CustomerCart(DBBase, CartDBBase):
     __tablename__ = 'customer_cart'
 
     customer_id = Column(INTEGER, ForeignKey(User.id), nullable=False)
-    total_price = Column(INTEGER, nullable=False, default=0)
 
     cart_items = relationship('CartItem', back_populates='cart')
     customer = relationship(User)

@@ -51,7 +51,7 @@ class CartItemModel(DBBaseModel, BaseModel):
 class CartModel(DBBaseModel, BaseModel):
     """Base DB model for cart"""
     cart_items: List[CartItemModel] = []
-    total_price: float
+    total_price: float = 0
     customer: UserModel
     customer_id: int
 
