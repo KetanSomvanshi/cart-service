@@ -5,8 +5,10 @@ from fastapi import Depends, Request
 from sqlalchemy.orm import Session
 
 from data_adapter.db import get_db
+from data_adapter.user import User
 from logger import logger
-from models.user import UserTokenData
+from models.user import UserTokenData, UserModel, UserStatus
+from utils.exceptions import AuthException
 
 # we are using context variables to store request level context , as FASTAPI
 # does not provide request context out of the box
@@ -23,6 +25,19 @@ async def build_request_context(request: Request,
     context_db_session.set(db)
     context_api_id.set(str(uuid.uuid4()))
     context_user_id.set(request.headers.get('X-User-ID'))
+    # fetch the token from context and check if the user is active or not
+    user_data_from_context: UserTokenData = context_actor_user_data.get()
+    if user_data_from_context:
+        user: UserModel = User.get_by_uuid(user_data_from_context.uuid)
+        error_message = None
+        if not user:
+            error_message = "Invalid authentication credentials, user not found"
+        elif user.role != user_data_from_context.role:
+            error_message = "Invalid authentication credentials, user role mismatch"
+        elif user.status != UserStatus.ACTIVE.value:
+            error_message = "Invalid authentication credentials, user is not active"
+        if error_message:
+            raise AuthException(status_code=401, message=error_message)
     context_log_meta.set({'api_id': context_api_id.get(), 'request_id': request.headers.get('X-Request-ID'),
                           'user_id': context_user_id.get(), 'actor': context_actor_user_data.get()})
     logger.info(extra=context_log_meta.get(), msg="REQUEST_INITIATED")

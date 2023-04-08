@@ -1,6 +1,4 @@
-import json
 from datetime import timedelta, datetime
-from http.client import HTTPException
 
 import jwt
 
