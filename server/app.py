@@ -8,7 +8,7 @@ from pydantic import ValidationError
 from sqlalchemy.exc import ProgrammingError, DataError, IntegrityError
 
 from controller import status, user_controller, customer_controller, inventory_controller, cart_controller
-from controller.context_manager import context_log_meta
+from controller.context_manager import context_log_meta, context_set_db_session_rollback
 from logger import logger
 from models.base import GenericResponseModel
 from server.auth import authenticate_token
@@ -30,6 +30,7 @@ app.include_router(cart_controller.cart_router, dependencies=[Depends(authentica
 #  register exception handlers here
 @app.exception_handler(ValidationError)
 async def pydantic_validation_exception_handler(request: Request, exc):
+    context_set_db_session_rollback.set(True)
     logger.error(extra=context_log_meta.get(), msg=f"data validation failed {exc.errors()}")
     return build_api_response(GenericResponseModel(status_code=http.HTTPStatus.BAD_REQUEST,
                                                    error="Data Validation Failed"))
@@ -37,6 +38,7 @@ async def pydantic_validation_exception_handler(request: Request, exc):
 
 @app.exception_handler(ProgrammingError)
 async def sql_exception_handler(request: Request, exc):
+    context_set_db_session_rollback.set(True)
     logger.error(extra=context_log_meta.get(),
                  msg=f"sql exception occurred error: {str(exc.args)} statement : {exc.statement}")
     return build_api_response(GenericResponseModel(status_code=http.HTTPStatus.INTERNAL_SERVER_ERROR,
@@ -45,6 +47,7 @@ async def sql_exception_handler(request: Request, exc):
 
 @app.exception_handler(DataError)
 async def sql_data_exception_handler(request, exc):
+    context_set_db_session_rollback.set(True)
     logger.error(extra=context_log_meta.get(),
                  msg=f"sql data exception occurred error: {str(exc.args)} statement : {exc.statement}")
     return build_api_response(GenericResponseModel(status_code=http.HTTPStatus.INTERNAL_SERVER_ERROR,
@@ -53,6 +56,7 @@ async def sql_data_exception_handler(request, exc):
 
 @app.exception_handler(AppException)
 async def application_exception_handler(request, exc):
+    context_set_db_session_rollback.set(True)
     logger.error(extra=context_log_meta.get(),
                  msg=f"application exception occurred error: {json.loads(str(exc))}")
     return build_api_response(GenericResponseModel(status_code=exc.status_code,
@@ -61,6 +65,7 @@ async def application_exception_handler(request, exc):
 
 @app.exception_handler(IntegrityError)
 async def sql_integrity_exception_handler(request, exc):
+    context_set_db_session_rollback.set(True)
     logger.error(extra=context_log_meta.get(),
                  msg=f"sql integrity exception occurred error: {str(exc.args)} statement : {exc.statement}")
     return build_api_response(GenericResponseModel(status_code=http.HTTPStatus.INTERNAL_SERVER_ERROR,

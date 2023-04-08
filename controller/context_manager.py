@@ -17,6 +17,7 @@ context_api_id: ContextVar[str] = ContextVar('api_id', default=None)
 context_log_meta: ContextVar[dict] = ContextVar('log_meta', default={})
 context_user_id: ContextVar[str] = ContextVar('user_id', default=None)
 context_actor_user_data: ContextVar[UserTokenData] = ContextVar('actor_user_data', default=None)
+context_set_db_session_rollback: ContextVar[bool] = ContextVar('set_db_session_rollback', default=False)
 
 
 async def build_request_context(request: Request,

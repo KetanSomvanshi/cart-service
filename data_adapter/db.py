@@ -34,11 +34,17 @@ DBBase = declarative_base()
 
 def get_db():
     """this function is used to inject db_session dependency in every rest api requests"""
+    from controller.context_manager import context_set_db_session_rollback
     db: Session = SessionLocal()
     try:
         yield db
         #  commit the db session if no exception occurs
-        db.commit()
+        #  if context_set_db_session_rollback is set to True then rollback the db session
+        if context_set_db_session_rollback.get():
+            logging.info('rollback db session')
+            db.rollback()
+        else:
+            db.commit()
     except Exception as e:
         #  rollback the db session if any exception occurs
         logging.error(e)
