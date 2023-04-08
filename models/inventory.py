@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, validator, HttpUrl
+from pydantic import BaseModel, validator, HttpUrl, constr
 
 from models.base import DBBaseModel
 
@@ -18,9 +18,9 @@ class ItemCategory(str, Enum):
 
 class ItemBaseModel(BaseModel):
     category: ItemCategory
-    name: str
+    name: constr(min_length=1, max_length=255, strip_whitespace=True)
     price: float
-    description: Optional[str] = None
+    description: Optional[constr(min_length=1, max_length=5000, strip_whitespace=True)] = None
     image: Optional[HttpUrl] = None
 
     @validator('price')

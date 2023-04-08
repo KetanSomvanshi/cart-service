@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, Path
 
 from controller.context_manager import build_request_context
 from models.base import GenericResponseModel
-from models.user import UserRole
 from server.auth import rbac_access_checker, RBACResource, RBACAccessType
 from service.customer_service import CustomerService
 from utils.helper import build_api_response

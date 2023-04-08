@@ -10,6 +10,7 @@ from models.inventory import ItemModel, ItemInsertModel
 
 class InventoryService:
     ERROR_NO_ITEMS_IN_INVENTORY = "No items found in inventory"
+    ERROR_ITEM_ALREADY_IN_INVENTORY = "Item already exists in inventory , try updating existing item"
 
     @staticmethod
     def get_all_items_in_inventory() -> GenericResponseModel:
@@ -32,5 +33,10 @@ class InventoryService:
         :param item: ItemInsertModel
         :return: GenericResponseModel
         """
+        existing_item: ItemModel = Item.get_by_name_and_category(item.name, item.category)
+        if existing_item:
+            logger.error(extra=context_log_meta.get(), msg=f"Item already exists in inventory")
+            return GenericResponseModel(status_code=http.HTTPStatus.CONFLICT,
+                                        error=InventoryService.ERROR_ITEM_ALREADY_IN_INVENTORY)
         item = Item.create_item(item.build_db_model())
         return GenericResponseModel(status_code=http.HTTPStatus.CREATED, data=item.build_response_model())

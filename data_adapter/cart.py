@@ -1,12 +1,10 @@
 from sqlalchemy import Column, INTEGER, ForeignKey
-from sqlalchemy.engine import default
 from sqlalchemy.orm import relationship
 
 from data_adapter.db import CartDBBase, DBBase
 from data_adapter.inventory import Item
 from data_adapter.user import User
 from models.cart import CartModel, CartItemModel
-from models.inventory import ItemModel
 
 
 class CustomerCart(DBBase, CartDBBase):

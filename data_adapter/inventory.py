@@ -53,3 +53,10 @@ class Item(DBBase, CartDBBase):
         updates = db.query(cls).filter(cls.uuid == item_uuid, cls.is_deleted.is_(False)).update(update_dict)
         db.flush()
         return updates
+
+    @classmethod
+    def get_by_name_and_category(cls, name: str, category: str) -> ItemModel:
+        from controller.context_manager import get_db_session
+        db = get_db_session()
+        item = db.query(cls).filter(cls.name == name, cls.category == category, cls.is_deleted.is_(False)).first()
+        return item.__to_model() if item else None

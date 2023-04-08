@@ -4,7 +4,7 @@ from controller.context_manager import context_log_meta
 from data_adapter.user import User
 from logger import logger
 from models.base import GenericResponseModel
-from models.user import UserInsertModel, UserLoginModel, UserModel, UserTokenResponseModel, UserStatus, UserRole
+from models.user import UserInsertModel, UserLoginModel, UserModel, UserTokenResponseModel
 from utils.jwt_token_handler import JWTHandler
 from utils.password_hasher import PasswordHasher
 
