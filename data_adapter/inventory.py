@@ -56,6 +56,15 @@ class Item(DBBase, CartDBBase):
         return updates
 
     @classmethod
+    def increase_item_quantity(cls, item_uuid: str, quantity_to_increase: int) -> int:
+        from controller.context_manager import get_db_session
+        db = get_db_session()
+        updates = db.query(cls).filter(cls.uuid == item_uuid, cls.is_deleted.is_(False)).update(
+            {cls.quantity: cls.quantity + quantity_to_increase})
+        db.flush()
+        return updates
+
+    @classmethod
     def get_by_name_and_category(cls, name: str, category: str) -> ItemModel:
         from controller.context_manager import get_db_session
         db = get_db_session()

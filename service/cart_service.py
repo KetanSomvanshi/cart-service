@@ -18,6 +18,10 @@ class CartService:
     ERROR_ITEM_NOT_FOUND = "Item not found"
     ERROR_ITEM_QUANTITY_NOT_ENOUGH = "Item quantity not enough"
     ERROR_ITEM_OUT_OF_STOCK = "Item is out of stock"
+    ERROR_ITEM_NOT_FOUND_IN_CART = "Item not found in cart"
+    ERROR_CART_ITEM_NOT_FOUND = "Cart item not found"
+    ERROR_CUSTOMER_CART_NOT_FOUND = "Customer cart not found"
+    ERROR_CART_ITEM_QUANTITY_NOT_ENOUGH = "Cart item quantity not enough"
 
     @staticmethod
     def get_cart_for_customer() -> GenericResponseModel:
@@ -94,20 +98,51 @@ class CartService:
         return GenericResponseModel(status_code=http.HTTPStatus.CREATED, data=customer_cart.build_response_model())
 
     @staticmethod
-    def remove_item_from_cart(item_uuid: UUID, remove_item_request: CartItemQuantity) -> GenericResponseModel:
-        item_to_remove: ItemModel = Item.get_by_uuid(item_uuid)
-        if not item_to_remove:
-            logger.error(extra=context_log_meta.get(), msg=f"Item not found")
-            return GenericResponseModel(status_code=http.HTTPStatus.NOT_FOUND, error=CartService.ERROR_ITEM_NOT_FOUND)
-        customer_cart: CartModel = CustomerCart.get_by_customer_uuid(context_actor_user_data.get().uuid)
-        if not customer_cart:
-            logger.error(extra=context_log_meta.get(), msg=f"No cart found for customer")
+    def remove_item_from_cart(cart_item_uuid: UUID, remove_item_request: CartItemQuantity) -> GenericResponseModel:
+        """
+        Remove item from cart
+        :param cart_item_uuid:
+        :param remove_item_request:
+        :return: GenericResponseModel
+
+        logic for remove cart item -
+        1. validations like if item exists in cart , if cart exists for customer
+        2. if cart item quantity is 0 , remove item from cart
+        3. if cart item quantity is not 0 , update item quantity in cart
+        """
+        cart_item_to_update: CartItemModel = CartItem.get_by_uuid(cart_item_uuid)
+        if not cart_item_to_update:
+            logger.error(extra=context_log_meta.get(), msg=f"Cart item to remove not found for uuid {cart_item_uuid}")
             return GenericResponseModel(status_code=http.HTTPStatus.NOT_FOUND,
-                                        error=CartService.ERROR_NO_CART_FOR_CUSTOMER)
-        # remove item from cart
-        CartItem.remove_item_from_cart(cart_id=customer_cart.id, item_id=item_to_remove.id,
-                                       quantity=remove_item_request.quantity)
-        # increase item quantity
-        Item.update_item_by_uuid(str(item_uuid),
-                                 update_dict={Item.quantity: item_to_remove.quantity + remove_item_request.quantity})
+                                        error=CartService.ERROR_CART_ITEM_NOT_FOUND)
+        customer_cart: CartModel = CustomerCart.get_by_customer_uuid(context_actor_user_data.get().uuid)
+        if not customer_cart or customer_cart.id != cart_item_to_update.cart_id:
+            logger.error(extra=context_log_meta.get(),
+                         msg=f"Customer cart not found for customer uuid {context_actor_user_data.get().uuid}")
+            return GenericResponseModel(status_code=http.HTTPStatus.NOT_FOUND,
+                                        error=CartService.ERROR_CUSTOMER_CART_NOT_FOUND)
+        if cart_item_to_update.quantity_in_cart < remove_item_request.quantity:
+            logger.error(extra=context_log_meta.get(), msg=f"Cart item quantity is less than requested quantity")
+            return GenericResponseModel(status_code=http.HTTPStatus.BAD_REQUEST,
+                                        error=CartService.ERROR_CART_ITEM_QUANTITY_NOT_ENOUGH)
+        #  update item quantity in inventory
+        Item.increase_item_quantity(str(cart_item_to_update.original_item.uuid), remove_item_request.quantity)
+        if cart_item_to_update.quantity_in_cart - remove_item_request.quantity == 0:
+            # remove item from cart
+            CartItem.delete_item_from_cart(cart_item_id=cart_item_to_update.id)
+            # update response data
+            customer_cart.cart_items = [cart_item for cart_item in customer_cart.cart_items if
+                                        cart_item.id != cart_item_to_update.id]
+            return GenericResponseModel(status_code=http.HTTPStatus.OK,
+                                        data=customer_cart.build_response_model())
+        # else update item quantity in cart
+        CartItem.update_item_quantity_in_cart(
+            cart_item_id=cart_item_to_update.id,
+            quantity=cart_item_to_update.quantity_in_cart - remove_item_request.quantity)
+        # update response data
+        for cart_item in customer_cart.cart_items:
+            if cart_item.id == cart_item_to_update.id:
+                cart_item.quantity_in_cart -= remove_item_request.quantity
+                cart_item.original_item.quantity += remove_item_request.quantity
+                break
         return GenericResponseModel(status_code=http.HTTPStatus.OK, data=customer_cart.build_response_model())

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, INTEGER, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, contains_eager
 
 from data_adapter.db import CartDBBase, DBBase
 from data_adapter.inventory import Item
@@ -65,13 +65,20 @@ class CartItem(DBBase, CartDBBase):
         return self.__to_model()
 
     @classmethod
-    def add_item_to_cart(cls, cart_id: int, item_id: int, quantity: int)-> CartItemModel:
+    def add_item_to_cart(cls, cart_id: int, item_id: int, quantity: int) -> CartItemModel:
         from controller.context_manager import get_db_session
         db = get_db_session()
         cart_item = cls(cart_id=cart_id, item_id=item_id, quantity_in_cart=quantity)
         db.add(cart_item)
         db.flush()
         return cart_item.__to_model()
+
+    @classmethod
+    def delete_item_from_cart(cls, cart_item_id: int):
+        from controller.context_manager import get_db_session
+        db = get_db_session()
+        cart_item = db.query(cls).filter(cls.id == cart_item_id).update({cls.is_deleted: True, cls.quantity_in_cart: 0})
+        db.flush()
 
     @classmethod
     def update_item_quantity_in_cart(cls, cart_item_id: int, quantity: int):

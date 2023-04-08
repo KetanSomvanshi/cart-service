@@ -28,8 +28,9 @@ async def get_cart_items(_=Depends(build_request_context)):
 
 @cart_router.post("/item/{item_uuid}", status_code=http.HTTPStatus.CREATED, response_model=GenericResponseModel)
 @rbac_access_checker(resource=RBACResource.cart, rbac_access_type=RBACAccessType.write)
-async def add_item_to_cart(item_uuid: UUID = Path(..., description="Item uuid to add to cart"),
-                           add_item_request: CartItemQuantity = Depends(), _=Depends(build_request_context)):
+async def add_item_to_cart(add_item_request: CartItemQuantity,
+                           item_uuid: UUID = Path(..., description="Item uuid to add to cart"),
+                           _=Depends(build_request_context)):
     """
     Add item to cart
     :param add_item_request:  CartItemQuantity
@@ -42,17 +43,18 @@ async def add_item_to_cart(item_uuid: UUID = Path(..., description="Item uuid to
     return build_api_response(response)
 
 
-@cart_router.delete("/item/{item_uuid}", status_code=http.HTTPStatus.OK, response_model=GenericResponseModel)
+@cart_router.delete("/item/{cart_item_uuid}", status_code=http.HTTPStatus.OK, response_model=GenericResponseModel)
 @rbac_access_checker(resource=RBACResource.cart, rbac_access_type=RBACAccessType.delete)
-async def remove_item_from_cart(item_uuid: UUID = Path(..., description="Item uuid to remove from cart"),
-                                remove_item_request: CartItemQuantity = Depends(), _=Depends(build_request_context)):
+async def remove_item_from_cart(remove_item_request: CartItemQuantity,
+                                cart_item_uuid: UUID = Path(..., description="Item uuid to remove from cart"),
+                                _=Depends(build_request_context)):
     """
     Remove item from cart
     :param remove_item_request:    CartItemQuantity object
     :param _: build_request_context dependency injection handles the request context
-    :param item_uuid: item uuid to remove from cart
+    :param cart_item_uuid: item uuid to remove from cart
     :return: GenericResponseModel
     """
-    response: GenericResponseModel = CartService.remove_item_from_cart(item_uuid=item_uuid,
+    response: GenericResponseModel = CartService.remove_item_from_cart(cart_item_uuid=cart_item_uuid,
                                                                        remove_item_request=remove_item_request)
     return build_api_response(response)
