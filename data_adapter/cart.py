@@ -72,3 +72,10 @@ class CartItem(DBBase, CartDBBase):
         db.add(cart_item)
         db.flush()
         return cart_item
+
+    @classmethod
+    def update_item_quantity_in_cart(cls, cart_item_id: int, quantity: int):
+        from controller.context_manager import get_db_session
+        db = get_db_session()
+        cart_item = db.query(cls).filter(cls.id == cart_item_id).update({cls.quantity_in_cart: quantity})
+        db.flush()

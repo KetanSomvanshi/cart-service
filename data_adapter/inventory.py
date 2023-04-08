@@ -47,10 +47,11 @@ class Item(DBBase, CartDBBase):
         return [item.__to_model() for item in items]
 
     @classmethod
-    def update_item_by_uuid(cls, item_uuid: str, update_dict: dict) -> int:
+    def decrease_item_quantity(cls, item_uuid: str, quantity_to_reduce: int) -> int:
         from controller.context_manager import get_db_session
         db = get_db_session()
-        updates = db.query(cls).filter(cls.uuid == item_uuid, cls.is_deleted.is_(False)).update(update_dict)
+        updates = db.query(cls).filter(cls.uuid == item_uuid, cls.is_deleted.is_(False)).update(
+            {cls.quantity: cls.quantity - quantity_to_reduce})
         db.flush()
         return updates
 

@@ -37,9 +37,14 @@ def get_db():
     db: Session = SessionLocal()
     try:
         yield db
-    finally:
-        # to be executed when request closes
+        #  commit the db session if no exception occurs
         db.commit()
+    except Exception as e:
+        #  rollback the db session if any exception occurs
+        logging.error(e)
+        db.rollback()
+    finally:
+        #  close the db session
         db.close()
 
 
