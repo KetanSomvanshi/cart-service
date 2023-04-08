@@ -106,5 +106,8 @@ class TokenType(str, Enum):
 
 class UserTokenResponseModel(BaseModel):
     """User token model"""
+    user_uuid: UUID
     access_token: str
     token_type: TokenType = TokenType.bearer
+    user_role: UserRole
+    user_status: UserStatus
