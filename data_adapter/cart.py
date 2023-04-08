@@ -33,8 +33,10 @@ class CustomerCart(DBBase, CartDBBase):
     def get_by_customer_uuid(cls, customer_uuid: str) -> CartModel:
         from controller.context_manager import get_db_session
         db = get_db_session()
-        user_cart = db.query(cls).join(cls.customer).filter(User.uuid == customer_uuid,
-                                                            cls.is_deleted.is_(False)).first()
+        #  using eager loading to avoid CartItem filter not getting applied
+        user_cart = db.query(cls).join(cls.customer).join(CartItem). \
+            filter(User.uuid == customer_uuid, cls.is_deleted.is_(False), CartItem.is_deleted.is_(False)).options(
+            contains_eager(cls.cart_items)).first()
         return user_cart.__to_model() if user_cart else None
 
     @classmethod
