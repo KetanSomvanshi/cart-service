@@ -10,12 +10,12 @@ from models.user import UserModel, UserResponseModel
 
 class CartItemQuantity(BaseModel):
     """Add item to cart model"""
-    quantity: int = 0
+    quantity: int = 1
 
     @validator('quantity')
     def quantity_must_be_positive(cls, v):
-        if v < 0:
-            raise ValueError('Quantity must be at least 0')
+        if v < 1:
+            raise ValueError('Quantity must be at least 1')
         return v
 
 
@@ -51,9 +51,12 @@ class CartItemModel(DBBaseModel, BaseModel):
 class CartModel(DBBaseModel, BaseModel):
     """Base DB model for cart"""
     cart_items: List[CartItemModel] = []
-    total_price: float = 0
     customer: UserModel
     customer_id: int
+
+    @property
+    def total_price(self) -> float:
+        return sum([item.original_item.price*item.quantity_in_cart for item in self.cart_items])
 
     class Config:
         orm_mode = True

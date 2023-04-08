@@ -32,12 +32,12 @@ class ItemBaseModel(BaseModel):
 
 class ItemInsertModel(ItemBaseModel):
     """Item model for insert"""
-    quantity: int = 1
+    quantity: int = 0
 
     @validator('quantity')
     def quantity_must_be_positive(cls, v):
-        if v < 1:
-            raise ValueError('Quantity must be at least 1')
+        if v < 0:
+            raise ValueError('Quantity must be at least 0')
         return v
 
     def build_db_model(self):

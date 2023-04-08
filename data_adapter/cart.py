@@ -65,13 +65,13 @@ class CartItem(DBBase, CartDBBase):
         return self.__to_model()
 
     @classmethod
-    def add_item_to_cart(cls, cart_id: int, item_id: int, quantity: int):
+    def add_item_to_cart(cls, cart_id: int, item_id: int, quantity: int)-> CartItemModel:
         from controller.context_manager import get_db_session
         db = get_db_session()
-        cart_item = cls(cart_id=cart_id, item_id=item_id, quantity=quantity)
+        cart_item = cls(cart_id=cart_id, item_id=item_id, quantity_in_cart=quantity)
         db.add(cart_item)
         db.flush()
-        return cart_item
+        return cart_item.__to_model()
 
     @classmethod
     def update_item_quantity_in_cart(cls, cart_item_id: int, quantity: int):

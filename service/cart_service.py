@@ -42,6 +42,12 @@ class CartService:
         3. add item to cart , if cart not found for customer , create it
         4. if item already exists in cart , update quantity instead of adding same item to cart
         5. if item quantity is 0 , remove item from cart
+
+        edge cases -
+        1. if item is out of stock , then item should not be added to cart this is handled
+        2. if 2 requests from different users are made to add same item to cart , and item quantity is not enough in
+        that case one of the request would try to update item quantity as negative where database check would fail
+        and only one of the request would be successful
         """
         item_to_add: ItemModel = Item.get_by_uuid(item_uuid)
         if not item_to_add:
@@ -67,6 +73,8 @@ class CartService:
             customer_cart = CustomerCart.create_cart_for_customer(customer.id)
         # reduce item quantity in inventory after validations
         Item.decrease_item_quantity(str(item_uuid), add_item_request.quantity)
+        # update item quantity
+        item_to_add.quantity -= add_item_request.quantity
         #  check if item is already in cart if exists , update quantity instead of adding same item to cart
         for cart_item in customer_cart.cart_items:
             if cart_item.item_id == item_to_add.id:
@@ -75,14 +83,14 @@ class CartService:
                                                       quantity=cart_item.quantity_in_cart + add_item_request.quantity)
                 # update response data
                 cart_item.quantity_in_cart += add_item_request.quantity
+                cart_item.original_item = item_to_add
                 return GenericResponseModel(status_code=http.HTTPStatus.OK, data=customer_cart.build_response_model())
         # add item to cart if already not exists
-        CartItem.add_item_to_cart(cart_id=customer_cart.id, item_id=item_to_add.id,
-                                  quantity=add_item_request.quantity)
-        # add cart item to response data
-        customer_cart.cart_items.append(CartItemModel(cart_id=customer_cart.id, item_id=item_to_add.id,
-                                                      quantity_in_cart=add_item_request.quantity,
-                                                      original_item=item_to_add))
+        cart_item_added: CartItemModel = CartItem.add_item_to_cart(cart_id=customer_cart.id, item_id=item_to_add.id,
+                                                                   quantity=add_item_request.quantity)
+        #  update response data
+        customer_cart.cart_items.append(cart_item_added)
+        logger.info(extra=context_log_meta.get(), msg=f"Item added to cart {cart_item_added}")
         return GenericResponseModel(status_code=http.HTTPStatus.CREATED, data=customer_cart.build_response_model())
 
     @staticmethod
