@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+#  build the image for fastapi app
+  app:
+    build:
+      context: ../
+      dockerfile: docker_test/test/Dockerfile
+    restart: always
+    container_name: cart_test_app
+    expose:
+      - "9999"
+    ports:
+      - 9999:9999
+    command: run_tests
