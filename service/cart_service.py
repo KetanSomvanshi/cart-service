@@ -27,7 +27,8 @@ class CartService:
     def get_cart_for_customer() -> GenericResponseModel:
         cart: CartModel = CustomerCart.get_by_customer_uuid(context_actor_user_data.get().uuid)
         if not cart:
-            logger.error(extra=context_log_meta.get(), msg=f"No cart found for customer")
+            logger.error(extra=context_log_meta.get(),
+                         msg=f"No cart found for customer {context_actor_user_data.get().uuid}")
             return GenericResponseModel(status_code=http.HTTPStatus.NOT_FOUND,
                                         error=CartService.ERROR_NO_CART_FOR_CUSTOMER)
         return GenericResponseModel(status_code=http.HTTPStatus.OK, data=cart.build_response_model())
@@ -55,23 +56,25 @@ class CartService:
         """
         item_to_add: ItemModel = Item.get_by_uuid(item_uuid)
         if not item_to_add:
-            logger.error(extra=context_log_meta.get(), msg=f"Item not found")
+            logger.error(extra=context_log_meta.get(), msg=f"Item not found {item_uuid}")
             return GenericResponseModel(status_code=http.HTTPStatus.NOT_FOUND, error=CartService.ERROR_ITEM_NOT_FOUND)
         if item_to_add.quantity <= 0:
-            logger.error(extra=context_log_meta.get(), msg=f"Item is out of stock")
+            logger.error(extra=context_log_meta.get(), msg=f"Item is out of stock {item_uuid}")
             return GenericResponseModel(status_code=http.HTTPStatus.BAD_REQUEST,
                                         error=CartService.ERROR_ITEM_OUT_OF_STOCK)
         if item_to_add.quantity < add_item_request.quantity:
-            logger.error(extra=context_log_meta.get(), msg=f"Item quantity not enough")
+            logger.error(extra=context_log_meta.get(), msg=f"Item quantity not enough {item_uuid}")
             return GenericResponseModel(status_code=http.HTTPStatus.BAD_REQUEST,
                                         error=CartService.ERROR_ITEM_QUANTITY_NOT_ENOUGH)
         customer_cart: CartModel = CustomerCart.get_by_customer_uuid(context_actor_user_data.get().uuid)
         if not customer_cart:
             #  create cart if not yet created
-            logger.info(extra=context_log_meta.get(), msg=f"No cart found for customer , so creating it")
+            logger.info(extra=context_log_meta.get(),
+                        msg=f"No cart found for customer {context_actor_user_data.get()} , so creating it")
             customer: UserModel = User.get_by_uuid(context_actor_user_data.get().uuid)
             if not customer:
-                logger.error(extra=context_log_meta.get(), msg=f"Customer not found , wrong uuid")
+                logger.error(extra=context_log_meta.get(),
+                             msg=f"Customer not found , wrong uuid {context_actor_user_data.get().uuid}")
                 return GenericResponseModel(status_code=http.HTTPStatus.NOT_FOUND,
                                             error=CartService.ERROR_CUSTOMER_NOT_FOUND)
             customer_cart = CustomerCart.create_cart_for_customer(customer.id)
@@ -122,7 +125,8 @@ class CartService:
             return GenericResponseModel(status_code=http.HTTPStatus.NOT_FOUND,
                                         error=CartService.ERROR_CUSTOMER_CART_NOT_FOUND)
         if cart_item_to_update.quantity_in_cart < remove_item_request.quantity:
-            logger.error(extra=context_log_meta.get(), msg=f"Cart item quantity is less than requested quantity")
+            logger.error(extra=context_log_meta.get(), msg=f"Cart item quantity is less than requested quantity"
+                                                           f" {cart_item_to_update.quantity_in_cart}")
             return GenericResponseModel(status_code=http.HTTPStatus.BAD_REQUEST,
                                         error=CartService.ERROR_CART_ITEM_QUANTITY_NOT_ENOUGH)
         #  update item quantity in inventory

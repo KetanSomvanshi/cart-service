@@ -46,6 +46,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 def rbac_access_checker(resource: RBACResource, rbac_access_type: RBACAccessType = RBACAccessType.read):
     """
     RBAC access checker decorator for endpoints to check if the user has access to the resource or not based on the role
+    and acces_type provided
     :param rbac_access_type:  access type
     :param resource:  resource name
     :return:

@@ -20,7 +20,7 @@ class InventoryService:
         """
         items: List[ItemModel] = Item.get_all_items()
         if not items:
-            logger.error(extra=context_log_meta.get(), msg=f"No items found in inventory")
+            logger.error(extra=context_log_meta.get(), msg="No items found in inventory")
             return GenericResponseModel(status_code=http.HTTPStatus.NOT_FOUND,
                                         error=InventoryService.ERROR_NO_ITEMS_IN_INVENTORY, data=[])
         return GenericResponseModel(status_code=http.HTTPStatus.OK,
@@ -35,7 +35,8 @@ class InventoryService:
         """
         existing_item: ItemModel = Item.get_by_name_and_category(item.name, item.category)
         if existing_item:
-            logger.error(extra=context_log_meta.get(), msg=f"Item already exists in inventory")
+            logger.error(extra=context_log_meta.get(), msg="Item already exists in inventory"
+                                                           f"{existing_item}")
             return GenericResponseModel(status_code=http.HTTPStatus.CONFLICT,
                                         error=InventoryService.ERROR_ITEM_ALREADY_IN_INVENTORY)
         item = Item.create_item(item.build_db_model())

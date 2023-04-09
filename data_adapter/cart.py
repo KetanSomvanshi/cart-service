@@ -10,9 +10,12 @@ from models.cart import CartModel, CartItemModel
 class CustomerCart(DBBase, CartDBBase):
     __tablename__ = 'customer_cart'
 
+    # foreign key form user table
     customer_id = Column(INTEGER, ForeignKey(User.id), nullable=False)
 
+    #  relationship one to many with cart item
     cart_items = relationship('CartItem', back_populates='cart')
+    #  relationship one to one with user
     customer = relationship(User)
 
     def __to_model(self) -> CartModel:
@@ -56,7 +59,9 @@ class CartItem(DBBase, CartDBBase):
     cart_id = Column(INTEGER, ForeignKey(CustomerCart.id), nullable=False)
     quantity_in_cart = Column(INTEGER, nullable=False)
 
+    # relationship many to one with cart
     cart = relationship(CustomerCart, back_populates='cart_items')
+    # relationship many to one with item
     original_item = relationship('Item')
 
     def __to_model(self) -> CartItemModel:
@@ -79,12 +84,12 @@ class CartItem(DBBase, CartDBBase):
     def delete_item_from_cart(cls, cart_item_id: int):
         from controller.context_manager import get_db_session
         db = get_db_session()
-        cart_item = db.query(cls).filter(cls.id == cart_item_id).update({cls.is_deleted: True, cls.quantity_in_cart: 0})
+        db.query(cls).filter(cls.id == cart_item_id).update({cls.is_deleted: True, cls.quantity_in_cart: 0})
         db.flush()
 
     @classmethod
     def update_item_quantity_in_cart(cls, cart_item_id: int, quantity: int):
         from controller.context_manager import get_db_session
         db = get_db_session()
-        cart_item = db.query(cls).filter(cls.id == cart_item_id).update({cls.quantity_in_cart: quantity})
+        db.query(cls).filter(cls.id == cart_item_id).update({cls.quantity_in_cart: quantity})
         db.flush()

@@ -50,8 +50,8 @@ class UserService:
                                                           f" with token {token}")
             #  return token to client for further use
             return GenericResponseModel(status_code=http.HTTPStatus.OK, data=UserTokenResponseModel(
-                access_token=token, user_uuid=user.uuid, user_role=user.role, user_status=user.status)
-                                        , message=f"Login successful for user {user.email}")
+                access_token=token, user_uuid=user.uuid, user_role=user.role, user_status=user.status),
+                                        message=f"Login successful for user {user.email}")
         logger.error(extra=context_log_meta.get(), msg=f"Invalid credentials for user {user.email}")
         return GenericResponseModel(status_code=http.HTTPStatus.UNAUTHORIZED,
                                     error=UserService.ERROR_INVALID_CREDENTIALS)

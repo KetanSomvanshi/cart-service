@@ -1,4 +1,3 @@
-# if custom exception is being used from celery , make sure init takes only one arguement
 import json
 
 

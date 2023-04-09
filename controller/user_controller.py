@@ -1,6 +1,6 @@
 import http
 
-from fastapi import APIRouter, Depends, Query, Path
+from fastapi import APIRouter, Depends
 
 from controller.context_manager import build_request_context
 from models.base import GenericResponseModel
