@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+#  build the image for fastapi app
+  app:
+    build:
+      context: ../
+      dockerfile: docker/app/Dockerfile
+    restart: always
+    container_name: cart_app
+    expose:
+      - "9999"
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    ports:
+      - 9999:9999
+    command: run_app
+  postgres:
+    restart: always
+#   this container_name would be used inside of the pp as hostname for postgres
+    container_name: postgres_db
+    image: postgres:alpine
+    # provide script to initiate tables
+    volumes:
+      - ../scripts/init_db.sql:/docker-entrypoint-initdb.d/init.sql
+
+    # Pass postgres environment variables
+    environment:
+      POSTGRES_PASSWORD: zxcvbnml
+      POSTGRES_DB: cartdb
+      POSTGRES_USER: cartdb_user
+    expose:
+      - "5432"
+    ports:
+      - 5432

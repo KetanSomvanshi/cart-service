@@ -11,10 +11,10 @@ load_dotenv(verbose=True)
 
 
 class DB:
-    host = Environment.get_string("DB_HOST", "localhost")
+    host = Environment.get_string("DB_HOST", "postgres_db")
     port = Environment.get_string("DB_PORT", '5432')
     name = Environment.get_string("DB_NAME", "cartdb")
-    user = Environment.get_string("DB_USER", "ketansomvanshi")
+    user = Environment.get_string("DB_USER", "cartdb_user")
     pass_ = Environment.get_string("DB_PASS", "zxcvbnml")
 
 
