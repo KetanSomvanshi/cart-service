@@ -33,7 +33,9 @@ cd docker && docker compose up
 ```
 
 ## Running the tests
+
 unit tests are also dockerized and can be run using the following command
+
 ```bash
 cd docker_test && docker compose up
 ```
