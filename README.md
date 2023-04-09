@@ -26,3 +26,8 @@ cd docker && docker compose up
 1. swagger documentation is available at [swagger docs](http://localhost:9999/docs) when you run the application.
 2. postman documentation with example requests(success, failure , validation , etc) is also provided at [postman docs](https://documenter.getpostman.com/view/15455073/2s93XsXmE8)
 
+## Improvements
+1. admin and customer can be normalized into separate table and user can be a generic entity which can be either admin or customer.
+2. signup api can be made more secure right now it is open api and anyone can signup as admin or customer.
+3. logout api can be implemented to invalidate the jwt token.
+4. redis to improve the performance of the application.
