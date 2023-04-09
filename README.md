@@ -51,3 +51,4 @@ cd docker_test && docker compose up
 2. signup api can be made more secure right now it is open api and anyone can signup as admin or customer.
 3. logout api can be implemented to invalidate the jwt token.
 4. redis to improve the performance of the application.
+5. e2e testing over rest apis can be added to test the application end to end.
