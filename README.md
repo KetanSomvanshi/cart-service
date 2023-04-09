@@ -29,13 +29,13 @@ Environment variables can be configured in config/.env file. config/env.sample p
 TO simply run the application with default config, you can run the following command
 
 ```bash
-cd docker_test && docker compose up
+cd docker && docker compose up
 ```
 
 ## Running the tests
 unit tests are also dockerized and can be run using the following command
 ```bash
-cd docker && docker compose run --rm app pytest
+cd docker_test && docker compose up
 ```
 
 ## API Documentation
