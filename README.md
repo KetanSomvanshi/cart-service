@@ -56,6 +56,7 @@ cd docker_test && docker compose up
 4. logout api can be implemented to invalidate the jwt token.
 5. redis to improve the performance of the application.
 6. pagination for inventory and cart list apis.
-7. adding cart currently adds item to cart and removes it from inventory , this can be improved by having a cart checkout
+7. adding cart currently adds item to cart and removes it from inventory (this is done to create item out of stock
+   scenarios), this can be improved by having a cart checkout
    workflow where we would remove items from inventory only at the time of cart checkout.
 8. e2e testing over rest apis can be added to test the application end to end.
