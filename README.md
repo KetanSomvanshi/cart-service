@@ -50,7 +50,11 @@ cd docker_test && docker compose up
 
 1. admin and customer can be normalized into separate table and user can be a generic entity which can be either admin
    or customer.
-2. signup api can be made more secure right now it is open api and anyone can signup as admin or customer.
-3. logout api can be implemented to invalidate the jwt token.
-4. redis to improve the performance of the application.
-5. e2e testing over rest apis can be added to test the application end to end.
+2. item can be normalized into separate tables category and item.
+3. signup api can be made more secure right now it is open api and anyone can signup as admin or customer.
+4. logout api can be implemented to invalidate the jwt token.
+5. redis to improve the performance of the application.
+6. pagination for inventory and cart list apis.
+7. adding cart currently adds item to cart and removes it from inventory , this can be improved by having a cart checkout
+   workflow where we would remove items from inventory only at the time of cart checkout.
+8. e2e testing over rest apis can be added to test the application end to end.
